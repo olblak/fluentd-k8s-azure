@@ -1,2 +1,3 @@
-# fluentd-k8s-azure
-Fluentd docker image for Kubernetes running on azure
+# fluentd-k8s-azure [DRAFT]
+Fluentd docker image that fetch kubernetes logs and send them 
+to azure log analytics
