@@ -14,8 +14,8 @@ describe "Test container: #{get_image()}" do
        @container = Docker::Container.create(
          'Image'   => get_image(),
          'Env'     => [
-           "AZURE_WORKSPACE_ID=aldjfalfd",
-           "AZURE_SHARED_KEY=adfafadsfa"
+           "AZURE_WORKSPACE_ID=azure_workspace_id",
+           "AZURE_SHARED_KEY=azure_storage_account_shared_key"
          ]
        )
        @container.start
@@ -39,12 +39,12 @@ describe "Test container: #{get_image()}" do
             config = '/fluentd/etc/conf.d/kubernetes.conf'
             expect(file(config)).to be_a_file
         end
-        it "should have source log directory" do
-            config = '/fluentd/output'
+        it "should have dest log directory" do
+            config = '/fluentd/log/dest'
             expect(file(config)).to be_a_directory
         end
-        it "should have dest log directory" do
-            config = '/fluentd/log'
+        it "should have source log directory" do
+            config = '/fluentd/log/source'
             expect(file(config)).to be_a_directory
         end
         it "should have plugins directory" do
