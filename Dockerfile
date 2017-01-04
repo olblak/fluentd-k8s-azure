@@ -27,13 +27,13 @@ RUN apk --no-cache add \
 
 RUN adduser -D -g '' -u 1000 -h /home/fluent fluent
 
-# for log storage (maybe shared with host)
-RUN mkdir -p /fluentd/log
 # configuration/plugins path (default: copied from .)
 RUN mkdir -p /fluentd/etc /fluentd/plugins
 
-# Will contain analysed logs
-RUN mkdir -p /fluentd/output
+# Contain logs before getting analyzed
+RUN mkdir -p /fluentd/log/source
+# Contain logs after getting analyzed
+RUN mkdir -p /fluentd/log/dest
 
 # Upload fluentd configuration files
 COPY etc /fluentd/etc
