@@ -1,4 +1,4 @@
-# fluentd-k8s-azure [DRAFT]
+# README
 Fluentd docker image that fetch kubernetes logs and send them 
 to azure log analytics.
 Required [Log Analytics](https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-get-started)
@@ -42,23 +42,28 @@ Output example:
     rake test:container   # Run Container tests for olblak/fluentd-k8s-azure:0.4.0
     rake test:dockerfile  # Run Dockerfile tests for olblak/fluentd-k8s-azure:0.4.0
 ```
-##k8s
+##Kubernetes
 k8s directory contain kubernetes configuration files in order to deploy this image on kubernetes clusters.
-####Step 1: Create azure credentials
+
+#####Step 1: Create azure credentials
 Based on k8s/secrets-template.yaml, you must create a new k8s/secret.yml
 With good values
 Then you can execute following command to:
+
 Create secrets
 ```kubectl create -f k8s/secrets-template.yaml```
+
 Update secrets
 ```kubectl apply -f k8s/secrets-template.yaml```
 
-####Step 2: Create fluent service account:
+#####Step 2: Create fluent service account:
 Run:
 ```kubectl create -f k8s/serviceaccount.yml```
 
-####Step 3: Create fluent daemonset
+#####Step 3: Create fluent daemonset
 Run:
 ```kubectl create -f k8s/daemonset.yml```
-__! You may want to update fluent docker image tag__
-__! You may want to change variables__
+
+__! You may want to update docker image tag__
+
+__! You may want to change log level variables__
