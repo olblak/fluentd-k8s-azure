@@ -51,17 +51,21 @@ With good values
 Then you can execute following command to:
 
 Create secrets
+
 ```kubectl create -f k8s/secrets-template.yaml```
 
 Update secrets
+
 ```kubectl apply -f k8s/secrets-template.yaml```
 
 #####Step 2: Create fluent service account:
 Run:
+
 ```kubectl create -f k8s/serviceaccount.yml```
 
 #####Step 3: Create fluent daemonset
 Run:
+
 ```kubectl create -f k8s/daemonset.yml```
 
 __! You may want to update docker image tag__
