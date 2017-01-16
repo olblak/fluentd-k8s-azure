@@ -3,6 +3,11 @@ Fluentd docker image that fetch kubernetes logs and send them
 to azure log analytics.
 Required [Log Analytics](https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-get-started)
 
+##REQUIREMENTS
+###Directory
+mount /var/log/containers -> /var/log/containers
+mount /var/lib/docker/containers -> /var/lib/docker/containers
+
 ##Configuration 
 This image is configure with following environment's variables.
 
