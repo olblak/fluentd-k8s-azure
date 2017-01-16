@@ -36,6 +36,9 @@ task :shell => [:build] do
 	sh "docker run --rm \
 		-e AZURE_WORKSPACE_ID=fake_azure_workspace_id \
 		-e AZURE_SHARED_KEY=fake_azure_shared_key \
+        -e AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account\
+        -e AZURE_ARCHIVE_STORAGE_ACCESS_KEY=azure_storage_access_key\
+        -e AZURE_ARCHIVE_CONTAINER=azure_container \
 		--entrypoint /bin/sh \
 		-i -t \
 	    #{@image}"	
@@ -46,6 +49,9 @@ task :run => [:build] do
 	sh "docker run --rm \
 		-e AZURE_WORKSPACE_ID=dont_insert_cred_here \
 		-e AZURE_SHARED_KEY=dont_insert_cred_here\
+        -e AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account\
+        -e AZURE_ARCHIVE_STORAGE_ACCESS_KEY=azure_storage_access_key\
+        -e AZURE_ARCHIVE_CONTAINER=azure_container \
 		#{@image}"
 end
 
@@ -53,12 +59,12 @@ desc "Publish #{@image} to DockerHub"
 task :publish do
     repository = "#{@metadata['namespace']}/#{@metadata['name']}"
     tag = "#{@metadata['version']}"
-    if !exist?(repository,tag)
+    #if !exist?(repository,tag)
         sh "docker push #{@image}"
-    else
-        print "\n\tImage: #{@image} already published\n"
-        print "\tDon't forget to update version in metadata.yaml\n\n"
-    end
+    #else
+    #    print "\n\tImage: #{@image} already published\n"
+    #    print "\tDon't forget to update version in metadata.yaml\n\n"
+    #end
 end
 
 desc "Remove docker #{@image}"

@@ -3,7 +3,8 @@ MAINTAINER VERNIN Olivier <olivier@vernin.me>
 
 LABEL \
     Description="Fluentd docker image for jenkins infra" \
-    Fluentd_version="0.12.31"
+    Fluentd_version="0.14.11" \
+    log_type="stream"
 
 
 # Do not split this into multiple RUN!
@@ -14,26 +15,24 @@ RUN apk --no-cache add \
                    ca-certificates \
                    ruby \
                    ruby-irb \
+                   zlib-dev \
                    ruby-dev && \
     echo 'gem: --no-document' >> /etc/gemrc && \
     gem install oj && \
     gem install json && \
-    gem install fluentd -v 0.12.31 && \
+    gem install fluentd -v 0.14.11 && \
+    gem install fluent-plugin-rewrite-tag-filter && \
     gem install fluent-plugin-kubernetes_metadata_filter && \
     gem install fluent-plugin-azure-loganalytics && \
+    gem install fluent-plugin-azurestorage && \
     gem install fluent-plugin-forest && \
-    apk del build-base ruby-dev && \
+    apk del build-base ruby-dev zlib-dev && \
     rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
 RUN adduser -D -g '' -u 1000 -h /home/fluent fluent
 
 # configuration/plugins path (default: copied from .)
-RUN mkdir -p /fluentd/etc /fluentd/plugins
-
-# Contain logs before getting analyzed
-RUN mkdir -p /fluentd/log/source
-# Contain logs after getting analyzed
-RUN mkdir -p /fluentd/log/dest
+RUN mkdir -p /fluentd/etc /fluentd/plugins /fluentd/log
 
 # Upload fluentd configuration files
 COPY etc /fluentd/etc
@@ -54,3 +53,4 @@ ENV FLUENTD_OPT=""
 ENV FLUENTD_CONF="fluent.conf"
 
 ENTRYPOINT ["/fluentd/entrypoint.sh"]
+

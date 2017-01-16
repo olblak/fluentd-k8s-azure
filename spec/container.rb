@@ -15,9 +15,11 @@ describe "Test container: #{get_image()}" do
          'Image'   => get_image(),
          'Env'     => [
            "AZURE_WORKSPACE_ID=azure_workspace_id",
-           "AZURE_SHARED_KEY=azure_storage_account_shared_key"
-         ]
-       )
+           "AZURE_SHARED_KEY=azure_storage_account_shared_key",
+           "AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account",
+           "AZURE_ARCHIVE_STORAGE_ACCESS_KEY=AZURE_ARCHIVE_STORAGE_ACCESS_KEY",
+           "AZURE_ARCHIVE_CONTAINER=AZURE_ARCHIVE_STORAGE_CONTAINER"
+          ])
        @container.start
 
        set :os, family: :alpine
@@ -39,12 +41,8 @@ describe "Test container: #{get_image()}" do
             config = '/fluentd/etc/conf.d/kubernetes.conf'
             expect(file(config)).to be_a_file
         end
-        it "should have dest log directory" do
-            config = '/fluentd/log/dest'
-            expect(file(config)).to be_a_directory
-        end
-        it "should have source log directory" do
-            config = '/fluentd/log/source'
+        it "should have log directory" do
+            config = '/fluentd/log'
             expect(file(config)).to be_a_directory
         end
         it "should have plugins directory" do
@@ -57,7 +55,9 @@ describe "Test container: #{get_image()}" do
         plugins = [
             'fluent-plugin-kubernetes_metadata_filter',
             'fluent-plugin-azure-loganalytics',
-            'fluent-plugin-forest'
+            'fluent-plugin-forest',
+            'fluent-plugin-azurestorage',
+            'fluent-plugin-rewrite-tag-filter'
         ]
         plugins.each do |plugin|
             it "#{plugin} should be installed" do
