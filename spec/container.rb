@@ -53,10 +53,10 @@ describe "Test container: #{get_image()}" do
 
     describe "Fluentd Plugins" do
         plugins = [
-            'fluent-plugin-kubernetes_metadata_filter',
-            'fluent-plugin-azure-loganalytics',
             'fluent-plugin-forest',
             'fluent-plugin-azurestorage',
+            'fluent-plugin-kubernetes_metadata_filter',
+            'fluent-plugin-azure-loganalytics',
             'fluent-plugin-rewrite-tag-filter'
         ]
         plugins.each do |plugin|

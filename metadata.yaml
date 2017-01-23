@@ -1,4 +1,4 @@
 ---
-version: 0.6.0
+version: sandbox
 name: fluentd-k8s-azure
 namespace: olblak

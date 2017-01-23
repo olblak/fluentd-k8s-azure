@@ -24,10 +24,11 @@ RUN apk --no-cache add \
     gem install fluent-plugin-rewrite-tag-filter && \
     gem install fluent-plugin-kubernetes_metadata_filter && \
     gem install fluent-plugin-azure-loganalytics && \
-    gem install fluent-plugin-azurestorage && \
-    gem install fluent-plugin-forest && \
-    apk del build-base ruby-dev zlib-dev && \
-    rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+    #gem install fluent-plugin-azurestorage && \
+    #gem install fluent-plugin-forest && \
+    gem install fluent-plugin-forest
+    #apk del build-base ruby-dev zlib-dev && \
+   # rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
 RUN adduser -D -g '' -u 1000 -h /home/fluent fluent
 
@@ -40,6 +41,21 @@ COPY etc /fluentd/etc
 COPY entrypoint.sh /fluentd/entrypoint.sh
 RUN chmod 0700 /fluentd/entrypoint.sh
 RUN chown -R fluent:fluent /fluentd
+
+# Install fluent-plugin-azurestorage 
+ADD https://github.com/htgc/fluent-plugin-azurestorage/archive/v0.0.8.tar.gz /fluentd/plugins/fluent-plugin-azurestorage-v0.0.8.tar.gz
+RUN apk --no-cache  add git ruby-bundler && \
+    gem install gemspec io-console && \
+    tar xvzf /fluentd/plugins/fluent-plugin-azurestorage-v0.0.8.tar.gz -C /fluentd/plugins/ && \
+    cd /fluentd/plugins/fluent-plugin-azurestorage-0.0.8 && \
+    bundle install && \
+    rake build
+
+RUN cd /fluentd/plugins/fluent-plugin-azurestorage-0.0.8 && \
+    rake build
+
+RUN cd /fluentd/plugins/fluent-plugin-azurestorage-0.0.8 && \
+    rake install
 
 #USER fluent
 WORKDIR /home/fluent
