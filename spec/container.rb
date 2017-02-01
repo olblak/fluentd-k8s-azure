@@ -13,12 +13,14 @@ describe "Test container: #{get_image()}" do
        Docker.options[:write_timeout] = 100000
        @container = Docker::Container.create(
          'Image'   => get_image(),
+         'Entrypoint' => ["sh", "-c", "tail -f /dev/null"],
          'Env'     => [
            "AZURE_WORKSPACE_ID=azure_workspace_id",
            "AZURE_SHARED_KEY=azure_storage_account_shared_key",
            "AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account",
            "AZURE_ARCHIVE_STORAGE_ACCESS_KEY=AZURE_ARCHIVE_STORAGE_ACCESS_KEY",
-           "AZURE_ARCHIVE_CONTAINER=AZURE_ARCHIVE_STORAGE_CONTAINER"
+           "AZURE_ARCHIVE_CONTAINER=AZURE_ARCHIVE_STORAGE_CONTAINER",
+           "DRY_RUN=true"
           ])
        @container.start
 
@@ -51,6 +53,12 @@ describe "Test container: #{get_image()}" do
         end
     end
 
+    describe "Package fluentd" do
+        it "should be installed by gem" do
+            expect(package("fluentd")).to be_installed.by('gem')
+        end
+    end
+
     describe "Fluentd Plugins" do
         plugins = [
             'fluent-plugin-kubernetes_metadata_filter',
@@ -66,9 +74,4 @@ describe "Test container: #{get_image()}" do
         end
     end 
 
-    describe "Package fluentd" do
-        it "should be installed by gem" do
-            expect(package("fluentd")).to be_installed.by('gem')
-        end
-    end
 end
