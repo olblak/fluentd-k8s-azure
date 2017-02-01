@@ -24,7 +24,7 @@ RUN apk --no-cache add \
     gem install fluent-plugin-rewrite-tag-filter && \
     gem install fluent-plugin-kubernetes_metadata_filter && \
     gem install fluent-plugin-azure-loganalytics && \
-    gem install fluent-plugin-azurestorage && \
+    gem install fluent-plugin-azurestorage -v '~> 0.0.8' && \
     gem install fluent-plugin-forest && \
     apk del build-base ruby-dev zlib-dev && \
     rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
@@ -32,7 +32,7 @@ RUN apk --no-cache add \
 RUN adduser -D -g '' -u 1000 -h /home/fluent fluent
 
 # configuration/plugins path (default: copied from .)
-RUN mkdir -p /fluentd/etc /fluentd/plugins /fluentd/log
+RUN mkdir -p /fluentd/etc /fluentd/plugins /fluentd/log /fluentd/tmp
 
 # Upload fluentd configuration files
 COPY etc /fluentd/etc
@@ -53,4 +53,3 @@ ENV FLUENTD_OPT=""
 ENV FLUENTD_CONF="fluent.conf"
 
 ENTRYPOINT ["/fluentd/entrypoint.sh"]
-
