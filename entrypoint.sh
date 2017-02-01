@@ -12,6 +12,12 @@
 FLUENTD_LOG_LEVEL="${FLUENTD_LOG_LEVEL:-info}"
 KUBERNETES_LOG_LEVEL="${KUBERNETES_LOG_LEVEL:-info}"
 
+if [ "$DRY_RUN" = "true" ]; then 
+    DRY_RUN=" --dry-run"; 
+else
+    DRY_RUN=""
+fi
+
 # Update fluentd configuration file
 sed -i "s/FLUENTD_LOG_LEVEL/${FLUENTD_LOG_LEVEL}/g" "/fluentd/etc/fluent.conf"
 sed -i "s/KUBERNETES_LOG_LEVEL/${KUBERNETES_LOG_LEVEL}/g" "/fluentd/etc/conf.d/kubernetes.conf"
@@ -26,4 +32,4 @@ sed -i "s/AZURE_ARCHIVE_STORAGE_ACCOUNT/${AZURE_ARCHIVE_STORAGE_ACCOUNT}/g" "/fl
 sed -i "s/AZURE_ARCHIVE_STORAGE_ACCESS_KEY/${AZURE_ARCHIVE_STORAGE_ACCESS_KEY}/g" "/fluentd/etc/conf.d/kubernetes.conf"
 sed -i "s/AZURE_ARCHIVE_CONTAINER/${AZURE_ARCHIVE_CONTAINER}/g" "/fluentd/etc/conf.d/kubernetes.conf"
 
-exec fluentd -c /fluentd/etc/${FLUENTD_CONF} -p /fluentd/plugins ${FLUENTD_OPT}
+exec fluentd -c /fluentd/etc/${FLUENTD_CONF} -p /fluentd/plugins ${FLUENTD_OPT} ${DRY_RUN}
