@@ -5,6 +5,8 @@ require 'json'
 
 @metadata = YAML.load(File.open('metadata.yaml'))
 @image = "#{@metadata['namespace']}/#{@metadata['name']}:#{@metadata['version']}"
+@fluentd_version = "#{@metadata['fluentd']['version']}"
+@fluentd_project = "#{@metadata['fluentd']['project']}"
 
 # Return true if namespace/image:tag exist
 def exist?(image,digest="latest")
@@ -28,7 +30,11 @@ end
 #
 desc "Build Docker Image #{@image}"
 task :build do
-    sh "docker build -t #{@image} ."
+    sh "docker build \
+        -t #{@image} \
+        --build-arg FLUENTD_VERSION=#{@fluentd_version} \
+        --build-arg FLUENTD_PROJECT=#{@fluentd_project} \
+        ."
 end
 
 desc "Run Docker Image #{@image} with shell"

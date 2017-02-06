@@ -1,10 +1,14 @@
 FROM alpine:3.4
 MAINTAINER VERNIN Olivier <olivier@vernin.me>
 
+ARG FLUENTD_VERSION
+ARG FLUENTD_PROJECT
+
 LABEL \
     Description="Fluentd docker image for jenkins infra" \
-    Fluentd_version="0.14.11" \
-    log_type="stream"
+    Fluentd_version=$FLUENTD_VERSION \
+    log_type="stream" \
+    Project=$FLUENTD_PROJECT
 
 
 # Do not split this into multiple RUN!
@@ -20,7 +24,7 @@ RUN apk --no-cache add \
     echo 'gem: --no-document' >> /etc/gemrc && \
     gem install oj && \
     gem install json && \
-    gem install fluentd -v 0.14.11 && \
+    gem install fluentd -v $FLUENTD_VERSION && \
     gem install fluent-plugin-rewrite-tag-filter && \
     gem install fluent-plugin-kubernetes_metadata_filter && \
     gem install fluent-plugin-azure-loganalytics && \
