@@ -3,12 +3,14 @@ MAINTAINER VERNIN Olivier <olivier@vernin.me>
 
 ARG FLUENTD_VERSION
 ARG FLUENTD_PROJECT
+ARG VERSION
 
 LABEL \
     Description="Fluentd docker image for jenkins infra" \
     Fluentd_version=$FLUENTD_VERSION \
     log_type="stream" \
-    Project=$FLUENTD_PROJECT
+    Project=$FLUENTD_PROJECT \
+    Version=$VERSION
 
 
 # Do not split this into multiple RUN!

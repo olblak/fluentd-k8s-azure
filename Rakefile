@@ -34,6 +34,7 @@ task :build do
         -t #{@image} \
         --build-arg FLUENTD_VERSION=#{@fluentd_version} \
         --build-arg FLUENTD_PROJECT=#{@fluentd_project} \
+        --build-arg VERSION=#{@metadata['version']} \
         ."
 end
 
