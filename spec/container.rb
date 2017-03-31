@@ -2,25 +2,45 @@ require "serverspec"
 require "yaml"
 require "docker"
 
-def get_image()
-    @metadata = YAML.load(File.open('metadata.yaml'))
-    return "#{@metadata['namespace']}/#{@metadata['name']}:#{@metadata['version']}"
-end
+metadata = YAML.load(File.open('metadata.yaml'))
+image = "#{metadata['namespace']}/#{metadata['name']}:#{metadata['version']}"
 
-describe "Test container: #{get_image()}" do
+
+files=[
+  '/fluentd/etc/fluent.conf',
+  '/fluentd/etc/conf.d/kubernetes.conf',
+  '/fluentd/entrypoint.sh'
+]
+
+directories=[
+  '/fluentd/log',
+  '/fluentd/plugins',
+  '/fluentd/etc',
+  '/fluentd/plugins',
+  '/fluentd/tmp',
+  ''
+]
+
+gems = [
+    'oj',
+    'json',
+    'fluentd',
+    'fluent-plugin-rewrite-tag-filter',
+    'fluent-plugin-kubernetes_metadata_filter',
+    'fluent-plugin-azure-loganalytics',
+    'fluent-plugin-forest'
+]
+
+describe "Container: #{image} should have" do
     before(:all) do
        Docker.options[:read_timeout] = 100000
        Docker.options[:write_timeout] = 100000
        @container = Docker::Container.create(
-         'Image'   => get_image(),
+         'Image'      => image,
          'Entrypoint' => ["sh", "-c", "tail -f /dev/null"],
-         'Env'     => [
+         'Env'        => [
            "AZURE_WORKSPACE_ID=azure_workspace_id",
-           "AZURE_SHARED_KEY=azure_storage_account_shared_key",
-           "AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account",
-           "AZURE_ARCHIVE_STORAGE_ACCESS_KEY=AZURE_ARCHIVE_STORAGE_ACCESS_KEY",
-           "AZURE_ARCHIVE_CONTAINER=AZURE_ARCHIVE_STORAGE_CONTAINER",
-           "DRY_RUN=true"
+           "AZURE_SHARED_KEY=azure_storage_account_shared_key"
           ])
        @container.start
 
@@ -33,45 +53,28 @@ describe "Test container: #{get_image()}" do
         @container.kill
         @container.delete(:force => true)
     end
-
-    describe "Fluentd Configuration" do
-        it "should have global configuration" do
-            config = '/fluentd/etc/fluent.conf'
-            expect(file(config)).to be_a_file
-        end
-        it "should have kubernetes.conf" do
-            config = '/fluentd/etc/conf.d/kubernetes.conf'
-            expect(file(config)).to be_a_file
-        end
-        it "should have log directory" do
-            config = '/fluentd/log'
-            expect(file(config)).to be_a_directory
-        end
-        it "should have plugins directory" do
-            config = '/fluentd/plugins'
-            expect(file(config)).to be_a_directory
-        end
+    
+    directories.each do |name|
+      it "directory: #{name}" do
+        config = '/fluentd/plugins'
+        expect(file(config)).to be_a_directory
+      end
     end
 
-    describe "Package fluentd" do
-        it "should be installed by gem" do
-            expect(package("fluentd")).to be_installed.by('gem')
-        end
+
+    files.each do |name|
+      it "file: #{name}" do
+        expect(file(name)).to be_a_file
+      end
     end
 
-    describe "Fluentd Plugins" do
-        plugins = [
-            'fluent-plugin-kubernetes_metadata_filter',
-            'fluent-plugin-azure-loganalytics',
-            'fluent-plugin-forest',
-            'fluent-plugin-azurestorage',
-            'fluent-plugin-rewrite-tag-filter'
-        ]
-        plugins.each do |plugin|
-            it "#{plugin} should be installed" do
-                expect(package("#{plugin}")).to be_installed.by('gem')
-            end
-        end
-    end 
+    gems.each do |gem| 
+      it "gem: #{gem}" do
+        expect(package(gem)).to be_installed.by('gem')
+      end
+    end
 
+    it "run in dry mode without errors" do
+        expect(command('/fluentd/entrypoint.sh --dry-run').exit_status).to equal(0)
+    end
 end

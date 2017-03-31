@@ -1,41 +1,86 @@
 # README
-Fluentd docker image that fetch kubernetes logs and send them 
-to azure log analytics.
-Required [Log Analytics](https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-get-started)
+This Fluentd docker image fetch kubernetes logs and based on pod labels either send them on azure log analytics either on a local directory.
 
-##REQUIREMENTS
-###Directory
-mount /var/log/containers -> /var/log/containers
-mount /var/lib/docker/containers -> /var/lib/docker/containers
+```
++--------------------------------------------------------------+
+| K8s Agent:                                                   |
+|                                            +------------+    |
+|                                            |Container_A |    |
+|                                            |            |    |
+| Agent Filesystem:                          +---------+--+    |
+| +--------------------+      <send_logs_to            |       |
+| |/var/log/containers |<------------------------------+       |
+| +----------+---------+                               |       |
+|            |                               +---------+--+    |
+|            |                               |Container_B |    |
+| Fetch_logs |                               |            |    |
+|            v                               +------------+    |         +--------------------+
+|      +----------+    apply_rule_1_stream_logs_to --------------------->| Azure LogAnalytics |
+|      |Fluentd   +-------------------------------/     /      |         +--------------------+
+|      |Container +-------------------------------------\      |         +--------------------+
+|      +----------+   apply_rule_0_archive_logs_to --------------------->| Azure Blob Storage |
+|                                                              |         +--------------------+
++--------------------------------------------------------------+
+```
 
-##Configuration 
-This image is configure with following environment's variables.
+## Requirements
+* [Kubernetes cluster](https://kubernetes.io/docs/getting-started-guides/azure)
 
-###Mandatory
-#####AZURE_WORKSPACE_ID
-Your Operations Management Suite workspace ID
-#####AZURE_SHARED_KEY
-The primary or the secondary Connected Sources client authentication key
+* [Log Analytics](https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-get-started)
 
-###Optionnal
-#####FLUENTD_LOG_LEVEL
-Define fluentd global log level.
-By default set to 'info'
-######Values 
-["fatal", "error", "warn", "info", "debug", "trace"]
+## Configuration
+### Volumes
+* /var/log/containers  
 
-#####KUBERNETES_LOG_LEVEL
-Define kubernetes rules log level
-By default set to 'info'
-######Values 
-["fatal", "error", "warn", "info", "debug", "trace"]
+  This directory must be mounted from kubernetes node and contains containers's logs.  
+  This volume should be mounted with READ only permission.  
+  ```mount /var/log/containers -> /var/log/containers```
 
-##Tasks
+* /var/lib/docker/containers
+
+  This directory contain additionnal docker's informations.  
+  Required by plugin: 'fluent-plugin-kubernetes_metadata_filter'.   
+  Should be mounted with READ only permission.  
+  ``` mount /var/lib/docker/containers -> /var/lib/docker/containers ```
+
+* /fluentd/log   
+
+  This directory contain logs that need to be archived after being processed by fluentd.  
+  It should be a blob storage shared with all fluentd instances.  
+  __! Blob storage is not configured inside the container but must be mounted as a volume__  
+  ``` mount blob_storage /fluentd/log ```
+
+### Variables
+This image is configured following environment's variables.
+
+* AZURE_WORKSPACE_ID
+
+  Your Operations Management Suite workspace ID 
+
+* AZURE_SHARED_KEY
+
+  The primary or the secondary Connected Sources client authentication key
+
+* FLUENTD_LOG_LEVEL
+
+  Define fluentd global log level.
+  By default set to 'info'
+  Accept: ["fatal", "error", "warn", "info", "debug", "trace"]
+
+* KUBERNETES_LOG_LEVEL
+
+  Define kubernetes rules log level
+  By default set to 'info'
+  Accept: ["fatal", "error", "warn", "info", "debug", "trace"]
+
+## Tasks
+
 A Rakefile define common operations for this project.
 Like build, test or publish to docker hub
 
-Run ```rake -T``` for more informations.
+Run ```rake -T``` for more informations.  
 Output example:
+
 ```
     rake build            # Build Docker Image olblak/fluentd-k8s-azure:0.4.0
     rake clean            # Remove docker olblak/fluentd-k8s-azure:0.4.0
@@ -47,32 +92,3 @@ Output example:
     rake test:container   # Run Container tests for olblak/fluentd-k8s-azure:0.4.0
     rake test:dockerfile  # Run Dockerfile tests for olblak/fluentd-k8s-azure:0.4.0
 ```
-##Kubernetes
-k8s directory contain kubernetes configuration files in order to deploy this image on kubernetes clusters.
-
-#####Step 1: Create azure credentials
-Based on k8s/secrets-template.yaml, you must create a new k8s/secret.yml
-With good values
-Then you can execute following command to:
-
-Create secrets
-
-```kubectl create -f k8s/secrets-template.yaml```
-
-Update secrets
-
-```kubectl apply -f k8s/secrets-template.yaml```
-
-#####Step 2: Create fluent service account:
-Run:
-
-```kubectl create -f k8s/serviceaccount.yml```
-
-#####Step 3: Create fluent daemonset
-Run:
-
-```kubectl create -f k8s/daemonset.yml```
-
-__! You may want to update docker image tag__
-
-__! You may want to change log level variables__

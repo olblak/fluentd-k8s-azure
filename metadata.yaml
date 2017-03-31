@@ -1,7 +1,7 @@
 ---
-version: 0.7.1
+version: sandbox
 name: fluentd-k8s-azure
 namespace: olblak
 fluentd: 
-    version: 0.14.11
+    version: 0.14.14
     project: 'https://github.com/fluent/fluentd'

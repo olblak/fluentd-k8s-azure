@@ -40,44 +40,35 @@ end
 
 desc "Run Docker Image #{@image} with shell"
 task :shell => [:build] do
-	sh "docker run --rm \
-		-e AZURE_WORKSPACE_ID=fake_azure_workspace_id \
-		-e AZURE_SHARED_KEY=fake_azure_shared_key \
-        -e AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account\
-        -e AZURE_ARCHIVE_STORAGE_ACCESS_KEY=dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=\
-        -e AZURE_ARCHIVE_CONTAINER=azure_container \
-		--entrypoint /bin/sh \
-		-i -t \
-	    #{@image}"	
+  sh "docker run --rm \
+    -e AZURE_WORKSPACE_ID=fake_azure_workspace_id \
+    -e AZURE_SHARED_KEY=fake_azure_shared_key \
+    --entrypoint /bin/sh \
+    -i -t \
+    #{@image}"
 end
 
 desc "Run Docker Image #{@image}"
 task :run => [:build] do
-	sh "docker run --rm \
-		-e AZURE_WORKSPACE_ID=dont_insert_cred_here \
-		-e AZURE_SHARED_KEY=dont_insert_cred_here\
-        -e AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account\
-        -e AZURE_ARCHIVE_STORAGE_ACCESS_KEY=dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=\
-        -e AZURE_ARCHIVE_CONTAINER=azure_container \
-		#{@image}"
+  sh "docker run --rm \
+    -e AZURE_WORKSPACE_ID=dont_insert_cred_here \
+    -e AZURE_SHARED_KEY=dont_insert_cred_here \
+    #{@image}"
 end
 
 desc "Dry Run Docker Image #{@image}"
 task :dryrun => [:build] do
-	sh "docker run --rm \
-		-e AZURE_WORKSPACE_ID=dont_insert_cred_here \
-		-e AZURE_SHARED_KEY=dont_insert_cred_here\
-        -e AZURE_ARCHIVE_STORAGE_ACCOUNT=azure_storage_account\
-        -e AZURE_ARCHIVE_STORAGE_ACCESS_KEY=dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=\
-        -e AZURE_ARCHIVE_CONTAINER=azure_container \
-        -e DRY_RUN=true \
-		#{@image}"
+  sh "docker run --rm \
+    -e AZURE_WORKSPACE_ID=dont_insert_cred_here \
+    -e AZURE_SHARED_KEY=dont_insert_cred_here \
+    #{@image} --dry-run"
 end
-desc "Publish #{@image} to DockerHub"
+
+desc "Publish #{@image} on DockerHub"
 task :publish do
     repository = "#{@metadata['namespace']}/#{@metadata['name']}"
     tag = "#{@metadata['version']}"
-    if !exist?(repository,tag)
+    if !exist?(repository,tag) or 'sandbox' == tag
         sh "docker push #{@image}"
     else
         print "\n\tImage: #{@image} already published\n"
