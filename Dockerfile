@@ -1,15 +1,17 @@
 FROM alpine:3.4
-MAINTAINER VERNIN Olivier <olivier@vernin.me>
 
-ARG FLUENTD_VERSION
-ARG FLUENTD_PROJECT
-ARG VERSION
+ENV \
+  FLUENTD_PROJECT="https://github.com/fluent/fluentd" \
+  PROJECT="https://github.com/olblak/fluentd-k8s-azure"
+
+ARG FLUENTD_VERSION="0.14.14"
 
 LABEL \
     Description="Fluentd docker image used to send logs on log analytics" \
     Fluentd_version=$FLUENTD_VERSION \
-    Project=$FLUENTD_PROJECT \
-    Version=$VERSION
+    Fluentd_Project=$FLUENTD_PROJECT \
+    Project=$PROJECT \
+    Maintainer="Olblak <me@olblak.com>"
 
 
 # Do not split this into multiple RUN!

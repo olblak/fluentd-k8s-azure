@@ -3,7 +3,7 @@ require "yaml"
 require "docker"
 
 metadata = YAML.load(File.open('metadata.yaml'))
-image = "#{metadata['namespace']}/#{metadata['name']}:#{metadata['version']}"
+image = "spec/#{metadata['name']}:#{metadata['version']}"
 
 
 files=[
@@ -35,6 +35,7 @@ describe "Container: #{image} should have" do
     before(:all) do
        Docker.options[:read_timeout] = 100000
        Docker.options[:write_timeout] = 100000
+       @image=Docker::Image.build_from_dir('.',{ 't' => image })
        @container = Docker::Container.create(
          'Image'      => image,
          'Entrypoint' => ["sh", "-c", "tail -f /dev/null"],
@@ -52,6 +53,7 @@ describe "Container: #{image} should have" do
     after(:all) do
         @container.kill
         @container.delete(:force => true)
+        @image.remove(:force => true)
     end
     
     directories.each do |name|
