@@ -31,18 +31,22 @@ pipeline{
        sh 'rake build'
       }
     }
-    #stage('Publish') {
-    #  when {
-    #    branch 'master'
-    #  }
-    #  steps{
-    #   sh 'rake publish'
-    #  }
-    #}
+    /*
+    stage('Publish') {
+      when {
+        branch 'master'
+      }
+      steps{
+       sh 'rake publish'
+      }
+    }
+    */
   }
+  /*
   #post {
   #  always {
   #    sh 'rake clean'
   #  }
   #}
+  */
 }
