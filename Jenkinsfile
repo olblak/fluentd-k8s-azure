@@ -5,34 +5,34 @@ pipeline{
       args '-v /var/run/docker.sock:/var/run/docker.sock --group-add=982' 
     }
   }
-  options {
+  options{
     buildDiscarder(logRotator(numToKeepStr: '10'))
     disableConcurrentBuilds()
     timeout(time: 1, unit: 'HOURS')
   }
 
-  triggers {
-    pollSCM('H 4/* 0 0 1-5')
+  triggers{
+    pollSCM('* * * * *')
   }
 
   stages{
-    stage('Init') {
+    stage('Init'){
       steps{
         sh 'bundle install'
       }
     }
-    stage('Test') {
+    stage('Test'){
       steps{
        sh 'rake test'
       }
     }
-    stage('Build') {
+    stage('Build'){
       steps{
        sh 'rake build'
       }
     }
     /*
-    stage('Publish') {
+    stage('Publish'){
       when {
         branch 'master'
       }
@@ -43,7 +43,7 @@ pipeline{
     */
   }
   /*
-  #post {
+  #post{
   #  always {
   #    sh 'rake clean'
   #  }
