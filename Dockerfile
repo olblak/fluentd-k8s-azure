@@ -1,16 +1,17 @@
 FROM alpine:3.4
-MAINTAINER VERNIN Olivier <olivier@vernin.me>
 
-ARG FLUENTD_VERSION
-ARG FLUENTD_PROJECT
-ARG VERSION
+ENV \
+  FLUENTD_PROJECT="https://github.com/fluent/fluentd" \
+  PROJECT="https://github.com/olblak/fluentd-k8s-azure"
+
+ARG FLUENTD_VERSION="0.14.14"
 
 LABEL \
-    Description="Fluentd docker image for jenkins infra" \
+    Description="Fluentd docker image used to send logs on log analytics" \
     Fluentd_version=$FLUENTD_VERSION \
-    log_type="stream" \
-    Project=$FLUENTD_PROJECT \
-    Version=$VERSION
+    Fluentd_Project=$FLUENTD_PROJECT \
+    Project=$PROJECT \
+    Maintainer="Olblak <me@olblak.com>"
 
 
 # Do not split this into multiple RUN!
@@ -30,7 +31,6 @@ RUN apk --no-cache add \
     gem install fluent-plugin-rewrite-tag-filter && \
     gem install fluent-plugin-kubernetes_metadata_filter && \
     gem install fluent-plugin-azure-loganalytics && \
-    gem install fluent-plugin-azurestorage -v '~> 0.0.8' && \
     gem install fluent-plugin-forest && \
     apk del build-base ruby-dev zlib-dev && \
     rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem

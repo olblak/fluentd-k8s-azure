@@ -1,8 +1,52 @@
-node {
+pipeline{
+  agent {
+    docker{
+      image 'ruby:2.3'
+      args '-v /var/run/docker.sock:/var/run/docker.sock --group-add=982' 
+    }
+  }
+  options{
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    disableConcurrentBuilds()
+    timeout(time: 1, unit: 'HOURS')
+  }
+
+  triggers{
+    pollSCM('* * * * *')
+  }
+
+  stages{
     stage('Init'){
-        sh 'rake init'
+      steps{
+        sh 'bundle install'
+      }
+    }
+    stage('Test'){
+      steps{
+       sh 'rake test'
+      }
     }
     stage('Build'){
-        sh 'rake build'
+      steps{
+       sh 'rake build'
+      }
     }
+    /*
+    stage('Publish'){
+      when {
+        branch 'master'
+      }
+      steps{
+       sh 'rake publish'
+      }
+    }
+    */
+  }
+  /*
+  #post{
+  #  always {
+  #    sh 'rake clean'
+  #  }
+  #}
+  */
 }
